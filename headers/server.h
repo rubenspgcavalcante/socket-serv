@@ -9,7 +9,7 @@ void error(const char *msg)
 
 class server{
 	private:
-		int sockfd, newsockfd, port, sockReturn;
+		int sockfd, newsockfd, port, sockReturn, pid;
 		char buffer[256];
 		socklen_t clilen;
 		struct sockaddr_in serv_addr, cli_addr;
@@ -17,6 +17,8 @@ class server{
 		bool _acceptCon();
 		char* _readSock();
 		bool _writeSock(char*);
+		bool _fork();
+		void _conHandler(int);
 		
 	public:
 		server(int);

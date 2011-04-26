@@ -43,6 +43,29 @@ bool server::_writeSock(char* msg){
 	return 1;
 }
 
+void server::_conHandler(int sock){
+	int n;
+	char buffer[256];
+	char msg[32] = {"I've got your message\n\0"};
+	printf("message: %s\n",_readSock());
+	_writeSock(msg);
+}
+
+bool server::_fork(){
+	pid = fork();
+	if (pid < 0){
+		error("ERROR on fork");
+		return 0;
+	}
+	if (pid == 0){
+		close(sockfd);
+		_conHandler(newsockfd);
+		exit(0);
+	}
+	else close(newsockfd);
+	return 1;
+}
+
 bool server::openSocket(){
 	sockfd = socket(AF_INET, SOCK_STREAM, 0);
     if (sockfd < 0){
@@ -58,9 +81,11 @@ bool server::bindAndListen(){
 		error("ERROR on binding");
 		return 0;
 	}
+	
 	listen(sockfd,5);
-	_acceptCon();
-	printf("message: %s\n",_readSock());
-	_writeSock(msg);
+	while(true){
+		_acceptCon();
+		_fork();
+	}
 	return 1;
 }
